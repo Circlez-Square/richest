@@ -16,28 +16,97 @@ invest_periods = 10.0
 yf.pdr_override()
 start = dt.datetime(2017, 1, 1)
 end = dt.datetime(2022, 12, 31)
-USD = web.get_data_yahoo('USD', start, end)
+tesla = web.get_data_yahoo('TSLA', start, end)
 # tesla = web.DataReader("TSLA", 'yahoo', start, end).............teacher
 Ford = web.get_data_yahoo("F",  start, end)
 General_Motors = web.get_data_yahoo("GM", start,end)
-print(USD)
+# print(USD)
 # print(Tesla.index[-1])
 # print(Tesla['Adj Close'][-1])
 # # print(Ford.tail())
 # print(General_Motors.tail())
 
-# class MySMAStrategy(Strategy):
-#     def init(self):
-#        price =self.data.Close
-#        self.ma1 = self.I(SMA,price ,10)
-#        self.ma2 = self.I(SMA, price, 20)
-#     def next(self):
-#         if crossover(self.ma1,self.ma2):
-#             self.buy()
-#         elif crossover(self.ma2, self.ma1):
-#             self.sell()
+
+# def DCA (start,invest_portion,invest_periods ):
+#     all_investment_dates =  pd.date_range(start , periods = invest_periods ,freq= '30D' )
+#     # print((all_investment_dates))
+#     # 30天買入 分10次買.........會直接超出界線，若給end要先算好
+#
+#     investment_dates = all_investment_dates [ all_investment_dates < tesla.index[-1]]
+#     #給界線
+#     closet_investment_dates = tesla.index.searchsorted(investment_dates)
+#     # print(closet_investment_dates)
+#     # 印出哪10天  .index.searchsorted 查找应在其中插入元素以保持顺序的索引
+#     stock_prices = tesla['Adj Close'][closet_investment_dates]
+#     # print(stock_prices)
+#     total_share_invested  = sum (invest_portion / stock_prices)
+#
+#     # 500us 對照相對應的日期  一次可買幾股
+#     # print(total_share_invested)
+#     uninvested_cash = invest_portion * sum(all_investment_dates >= tesla.index[-1])
+#     # 沒把錢丟進得餘額
+#     # print(total_share_invested)
+#     # print(Tesla['Adj Close'][-1])
+#     total = uninvested_cash + tesla['Adj Close'][-1] * total_share_invested
+#     return total
+#
+#
+#
+#
+# invest_portion = initial_money / invest_periods
+# DCA_list = []
+# for i,date in enumerate(tesla.index) :
+#         # if i == 538:
+#         #     print(str(date))
+#         # #     找最大值
+#     DCA_list.append(DCA(date,invest_portion,invest_periods))
+#     initial_money = initial_money - invest_portion
+#     # 要扣掉以下注得錢
+#     # print("test:", date, initial_money)
+# # DCA_list.reverse().........................導致最後一筆 2022:12:30 5000
+#
+# dca =pd.DataFrame()
+#
+# dca['DCA'] = DCA_list
+# print("lulala",dca['DCA'])
+#     # print("lulala",dca['DCA'].max())
+#     # print("lulala",dca['DCA'].idxmax())
+#     # print("lulala",dca['DCA'][dca['DCA'].idxmax()])
+# dca = dca.set_index(pd.DatetimeIndex(tesla.index))
+# dca = dca.squeeze
+    # 删除数组形状中的单维度条目
+    # print(dca.idxmax().map(lambda  x: x.year))
+
+    # b = dca.idxmax().map(lambda  x: x.year)
+    # d = dca.idxmax().map(lambda  x: x.month)
+    # y = dca.idxmax().map(lambda  x: x.day)
+
+# print("the best day to start dca $" + str(initial_money) + "invest was on" + b + d + y + 'and would be worth$' + str(round(dca.max(),2)) + 'on' + dca.list_vaild_index().strftime('%b %d %Y'))
+# print(dca)
+# dca.plot()
+# plt.title('DCA')
+# plt.xlabel('DATE')
+# plt.ylabel('USD')
+# plt.show()
 
 
+
+
+class Myteststrategy(Strategy):
+    def init(self):
+       price =self.data.Close
+       self.ma1 = self.I(SMA,price ,5)
+       self.ma2 = self.I(SMA, price, 10)
+       self.ma3 = self.I(SMA, price, 20)
+    def next(self):
+        if crossover (self.ma1,self.ma2) :
+            self.buy()
+        elif crossover(self.ma3, self.ma2) or crossover (self.ma2,self.ma1):
+            self.sell()
+        # backtest = Backtest(tesla , Myteststrategy,commission=.002,exclusive_orders=True)
+        # stats = backtest.run()
+        # print(stats)
+        # backtest.plot()
 # class MyMACDstrategy(Strategy):
 #     def init (self):
 #         price = self.data.Close
@@ -54,79 +123,3 @@ print(USD)
 # print(stats)
 # backtest.plot()
 # class Myteststrategy(Strategy):
-#     def DCA (start,invest_portion,invest_periods ):
-#         all_investment_dates =  pd.date_range(start , periods = invest_periods ,freq= '30D' )
-#         # print((all_investment_dates))
-#         # 30天買入 分10次買.........會直接超出界線，若給end要先算好
-#
-#         investment_dates = all_investment_dates [ all_investment_dates < Tesla.index[-1]]
-#         #給界線
-#         closet_investment_dates = Tesla.index.searchsorted(investment_dates)
-#         # print(closet_investment_dates)
-#         # 印出哪10天  .index.searchsorted 查找应在其中插入元素以保持顺序的索引
-#         stock_prices = Tesla['Adj Close'][closet_investment_dates]
-#         # print(stock_prices)
-#         total_share_invested  = sum (invest_portion / stock_prices)
-#
-#         # 500us 對照相對應的日期  一次可買幾股
-#         # print(total_share_invested)
-#         uninvested_cash = invest_portion * sum(all_investment_dates >= Tesla.index[-1])
-#         # 沒把錢丟進得餘額
-#         # print(total_share_invested)
-#         # print(Tesla['Adj Close'][-1])
-#         total = uninvested_cash + Tesla['Adj Close'][-1] * total_share_invested
-#         return total
-#
-#
-#
-#
-#     invest_portion = initial_money / invest_periods
-#     DCA_list = []
-#     for i,date in enumerate(Tesla.index) :
-#         if i == 538:
-#             print(str(date))
-#         #     找最大值
-#         DCA_list.append(DCA(date,invest_portion,invest_periods))
-#         initial_money = initial_money - invest_portion
-#     # 要扣掉以下注得錢
-#     # print("test:", date, initial_money)
-# # DCA_list.reverse().........................導致最後一筆 2022:12:30 5000
-# # print(type(DCA_list))
-#
-#     dca =pd.DataFrame()
-#
-#     dca['DCA'] = DCA_list
-#     print("lulala",dca['DCA'])
-#     # print("lulala",dca['DCA'].max())
-#     # print("lulala",dca['DCA'].idxmax())
-#     # print("lulala",dca['DCA'][dca['DCA'].idxmax()])
-#     dca = dca.set_index(pd.DatetimeIndex(Tesla.index))
-    # dca = dca.squeeze
-    # 删除数组形状中的单维度条目
-    # print(dca.idxmax().map(lambda  x: x.year))
-    #
-    # b = dca.idxmax().map(lambda  x: x.year)
-    # d = dca.idxmax().map(lambda  x: x.month)
-    # y = dca.idxmax().map(lambda  x: x.day)
-
-# print("the best day to start dca $" + str(initial_money) + "invest was on" + b + d + y + 'and would be worth$' + str(round(dca.max(),2)) + 'on' + dca.list_vaild_index().strftime('%b %d %Y'))
-#     dca.plot()
-#     plt.title('DCA')
-#     plt.xlabel('DATE')
-#     plt.ylabel('USD')
-#     plt.show()
-
-# class Myteststrategy(Strategy):
-#     def init(self):
-#        price =self.data.Close
-#        self.ma1 = self.I(SMA,price ,10)
-#        self.ma2 = self.I(SMA, price, 20)
-#     def next(self):
-#         if crossover(self.ma1,self.ma2):
-#             self.buy()
-#         elif crossover(self.ma2, self.ma1):
-#             self.sell()
-# backtest = Backtest(Ford , Myteststrategy,commission=.002,exclusive_orders=True)
-# stats = backtest.run()
-# print(stats)
-# backtest.plot()
